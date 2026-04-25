@@ -10,6 +10,7 @@ USE Flood_Control_DB;
 
 -- ===========================================
 -- Budget Allocation Overview (KPI)
+-- Insight Goal: Evaluate whether total contract costs exceed approved budgets to detect overall cost overruns
 -- ===========================================
 SELECT 
 	ROUND(SUM(Approved_Budget) / 1000000000 , 2) AS Total_Approved_Budget_Billions,
@@ -18,6 +19,7 @@ FROM Fact_Project f;
 
 -- ===========================================
 -- Regional Budget Distribution
+-- Insight Goal: Identify which regions receive the highest funding and assess allocation balance
 -- ===========================================
 WITH tb AS (SELECT	l.Region,
 					SUM(f.Approved_Budget) AS Total_Budget
@@ -33,6 +35,7 @@ FROM	tb;
 
 -- ===========================================
 -- Budget Trends Over Time (YoY Analysis)
+-- Insight Goal: Analyze year-over-year budget trends to identify growth patterns, volatility, and funding consistency
 -- ===========================================
 
 WITH yb AS (SELECT	 YEAR(d.Full_Date) AS Funding_Year, 
@@ -52,6 +55,7 @@ FROM 	yb;
 
 -- ===========================================
 -- Contractor Funding Analysis
+-- Insight Goal: Identify top-funded contractors and evaluate funding concentration across contractors
 -- ===========================================
 WITH cb AS (SELECT	 c.Contractor,
 						SUM(f.Approved_Budget) AS Total_Budget
@@ -67,6 +71,7 @@ FROM	cb;
 
 -- ===========================================
 -- Contractor Budget Distribution (Quartile Analysis)
+-- Insight Goal: Measure the distribution of funding across contractor quartiles to assess concentration and inequality
 -- ===========================================
 WITH cb AS (SELECT	 c.Contractor,
 						SUM(f.Approved_Budget) AS Total_Budget
@@ -87,6 +92,7 @@ ORDER BY Budget_Quartile;
 
 -- ===========================================
 -- Project Budget vs Project Duration Matrix
+-- Insight Goal: Analyze the relationship between project budget and duration to detect whether higher-cost projects are associated with longer completion times
 -- ===========================================
 WITH qt AS (SELECT	p.Project_ID, f.Approved_Budget,
 				    DATEDIFF(cd.Full_Date, sd.Full_Date) AS Project_Duration,
@@ -119,31 +125,3 @@ SELECT	 Budget_Quartile,
 FROM	 pr
 GROUP BY Budget_Quartile
 ORDER BY Budget_Quartile;
- 
--- ===========================================
--- Regional Budget Distribution (Yearly Matrix)
--- ===========================================
-SELECT 
-	COALESCE(l.Region, 'Grand_Total') AS Region,
-
-	SUM(CASE WHEN d.Year = 2018 THEN f.Approved_Budget ELSE 0 END) AS `2018`,
-	SUM(CASE WHEN d.Year = 2019 THEN f.Approved_Budget ELSE 0 END) AS `2019`,
-	SUM(CASE WHEN d.Year = 2020 THEN f.Approved_Budget ELSE 0 END) AS `2020`,
-	SUM(CASE WHEN d.Year = 2021 THEN f.Approved_Budget ELSE 0 END) AS `2021`,
-	SUM(CASE WHEN d.Year = 2022 THEN f.Approved_Budget ELSE 0 END) AS `2022`,
-	SUM(CASE WHEN d.Year = 2023 THEN f.Approved_Budget ELSE 0 END) AS `2023`,
-	SUM(CASE WHEN d.Year = 2024 THEN f.Approved_Budget ELSE 0 END) AS `2024`,
-	SUM(CASE WHEN d.Year = 2025 THEN f.Approved_Budget ELSE 0 END) AS `2025`,
-
-	SUM(f.Approved_Budget) AS Grand_Total
-
-FROM Fact_Project f
-JOIN Dim_Location l
-	ON f.Location_Key = l.Location_Key
-JOIN Dim_Date d
-	ON f.Funding_Date_Key = d.Date_Key
-WHERE f.Approved_Budget IS NOT NULL
-GROUP BY l.Region WITH ROLLUP
-ORDER BY 
-	CASE WHEN l.Region IS NULL THEN 1 ELSE 0 END,
-    Grand_Total DESC;
