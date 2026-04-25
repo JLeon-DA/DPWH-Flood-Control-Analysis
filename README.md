@@ -6,7 +6,8 @@ This project analyzes flood control infrastructure data to evaluate how governme
 The project demonstrates end-to-end data analytics skills, including SQL-based data cleaning, star schema data modeling, analytical querying, and interactive dashboard development in Power BI.
 
 ## Dashboard Preview
-[LINK]
+![Flood Control Dashboard](Power BI Dashboard/DPWH_Dashboard_Page_1.png)
+![Flood Control Dashboard](Power BI Dashboard/DPWH_Dashboard_Page_2.png)
 
 ## Objectives
 This analysis aims to answer the following key questions:
