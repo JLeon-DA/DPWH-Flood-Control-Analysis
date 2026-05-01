@@ -52,7 +52,6 @@ CREATE TABLE Dim_Date (
     Day_Name VARCHAR(20)
 );
 
-DROP TABLE Fact_Project;
 CREATE TABLE Fact_Project (
 	Fact_Key INT AUTO_INCREMENT PRIMARY KEY,
     
